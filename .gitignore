@@ -1,0 +1,14 @@
+target
+
+// Macos
+.DS_Store
+
+// setting files
+.vscode/*
+!.vscode/extensions.json
+secret
+.env
+.envrc
+*.pem
+
+self

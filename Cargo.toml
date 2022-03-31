@@ -1,0 +1,12 @@
+[package]
+name = "message-server-backend"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+axum = { version = "0.4", features = ["ws", "headers"] }
+tokio = { version = "1.17", features = ["rt-multi-thread", "macros"] }
+serde = { version = "1.0", features = ["derive"] }
+async_once = "0.2"
+lazy_static = "1.4"
+futures = "0.3.21"
