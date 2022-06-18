@@ -1,9 +1,7 @@
-pub struct State {
-    pub visit_count: u64,
-}
+use axum::extract::ws::WebSocket;
 
-impl State {
-    pub fn new() -> Self {
-        State { visit_count: 0 }
-    }
+#[derive(Debug)]
+pub struct WsState {
+    pub socket: WebSocket,
+    pub username: String,
 }

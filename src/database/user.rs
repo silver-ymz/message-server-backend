@@ -1,33 +1,37 @@
-use bb8_postgres::tokio_postgres::Row;
+use mongodb::bson::doc;
 
 use super::DataBase;
 use crate::structure::user::User;
 
 impl DataBase {
     pub async fn insert_user(&self, item: &User) -> Result<(), ()> {
-        let conn = self.pool.get().await.unwrap();
+        let coll = self.db.collection::<User>("user");
 
-        if !conn.query_one("SELECT name FROM users where name=$1", &[&item.name.as_str()]).await.unwrap().is_empty() {
-            return Err(());
-        };
-
-        match conn
-            .query_one(
-                "INSERT INTO users (name, password) VALUES ($1, $2)",
-                &[&item.name.as_str(), &item.password.as_str()],
-            )
+        if coll
+            .find_one(doc! {"name": &item.name}, None)
             .await
+            .unwrap()
+            .is_some()
         {
-            Ok(_row) => Ok(()),
-            Err(_) => Err(()),
+            return Err(());
         }
+
+        coll.insert_one(item, None)
+            .await
+            .map(|_| ())
+            .map_err(|_| ())
     }
 
     pub async fn find_user(&self, item: &User) -> Result<(), ()> {
-        let conn = self.pool.get().await.unwrap();
-        let password = match conn.query_one("SELECT password FROM users where name=$1", &[&item.name.as_str()]).await {
-            Ok(row) => row,
-            Err(_) => return Err(())
-        };
+        let coll = self.db.collection::<User>("user");
+
+        match coll
+            .find_one(doc! {"name": &item.name}, None)
+            .await
+            .unwrap()
+        {
+            Some(user) if user.password == item.password => Ok(()),
+            _ => Err(()),
+        }
     }
 }
